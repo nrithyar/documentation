@@ -25,44 +25,10 @@ and some js in your snippet.
   alert("hello world");
 ```
 and include that snippet in your markdown for it to be picked up by pygments and rendered into HTML:
-
-    {% highlight javascript %}
-    {% include alert_msg.js %}
-    {% endhighlight %}
     
 Now create the working example by evaling the partial.
 
-```html
-  <script type="text/javascript" charset="utf-8">
-    $(document).ready(function(){
-      $("#submit").click(function(e){
-        {% include alert_msg.js %}
-        return false;
-      })
-    });
-  </script>
-```
 
 ## Keeping documentation up to date
 
 Having the `gh-pages` convention is nice, but it keeps it hard to share between to branches and this is a problem if you want to publish your documentation. A simple solution is to provide a post-commmit hook that clones the repo into a temp directory, generates the documentation, copies that documentation into that branch and then pushes the code to the gh-pages branch on your github remote; triggering the page build process.
-
-```ruby
-  #!/usr/bin/env ruby
-  require 'fileutils'
-  if `git branch`.split("\n").detect{|x| x.match(/^\*/)}.match(/master/)
-    puts "updating documentation on the gh-pages branch"
-    myrepo = "git@github.com:myrepo.git"
-    temp = "/tmp/myrepo"
-    FileUtils.mkdir_p(temp)
-    `docco src/*.coffee`
-    `git clone -b gh-pages #{myrepo} #{temp}`
-    FileUtils.cp_r("docs/", temp)
-    FileUtils.cd(temp) do
-      system("git remote add github #{myrepo}")
-      system("git add docs && git commit -a -m 'updating documentation' && git push github gh-pages")
-    end
-    FileUtils.rm_rf(temp)
-    FileUtils.rm_r("docs/")
-  end
-```
